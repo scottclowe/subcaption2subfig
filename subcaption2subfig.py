@@ -13,6 +13,8 @@ ENV_NAME = 'subfigure'
 ENV_START_RE = '\\\\begin{\s*' + ENV_NAME + '\s*}'
 ENV_END_RE = '\\\\end{\s*' + ENV_NAME + '\s*}'
 
+COMMENT_RE = '(^|[^\\\])%'
+
 LOF_CAPTION_AUTO = 'auto'
 LOF_CAPTION_MIRROR = 'mirror'
 LOF_CAPTION_NONE = 'none'
@@ -73,7 +75,9 @@ def main():
                     comment_status = re.search(COMMENT_RE, line)
                     if is_in_subfigure:
                         result = re.search(ENV_END_RE, line)
-                        if result:
+                        if result and \
+                                (not comment_status or
+                                result.start() < comment_status.start()):
                             buffer_text += line[:result.start()]
                             f_out.write(handle_block(buffer_text))
                             is_in_subfigure = False
@@ -86,7 +90,9 @@ def main():
 
                     else:
                         result = re.search(ENV_START_RE, line)
-                        if result:
+                        if result and \
+                                (not comment_status or
+                                result.start() < comment_status.start()):
                             f_out.write(line[:result.start()])
                             is_in_subfigure = True
                             line = line[result.end():]
