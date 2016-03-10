@@ -59,6 +59,7 @@ def handle_block(content, verbose=0):
     labels = prog.findall(content)
     content = prog.sub('', content)
 
+    # Find all the captions
     caption = ''
     prog = re.compile('^(.*)\\\\caption\{([^\}]*)\}(.*)$', flags=re.DOTALL)
     result = prog.match(content)
