@@ -38,6 +38,32 @@ def input_handler():
     return args
 
 
+def find_closing_brace(text, closing='}', opening=None, start_depth=1):
+    if opening is None:
+        if closing == '}':
+            opening = '{'
+        elif closing == ')':
+            opening = '('
+        elif closing == ']':
+            opening = '['
+        elif closing == '>':
+            opening = '<'
+
+    current_depth = start_depth
+    has_begun = (current_depth != 0)
+    for index, char in enumerate(text):
+        if char is opening and opening is not None:
+            current_depth += 1
+        if char is closing:
+            current_depth -= 1
+        if current_depth==0 and has_begun:
+            return index
+        if not has_begun and current_depth:
+            has_begun = True
+
+    return -1
+
+
 def handle_block(content, verbose=0):
 
     if verbose:
