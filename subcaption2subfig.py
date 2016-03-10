@@ -44,7 +44,6 @@ def handle_block(content):
     caption = ''
     prog = re.compile('^(.*)\\\\caption\{([^\}]*)\}(.*)$')
     result = prog.match(content)
-    print(result)
     while result:
         caption += result.groups()[1]
         content = result.groups()[0] + result.groups()[2]
