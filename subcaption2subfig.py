@@ -152,6 +152,12 @@ def main(source, destination, verbose=0):
                             f_out.write(line)
                             break
 
+            if is_in_subfigure:
+                f_out.write(handle_block(buffer_text, verbose))
+                raise EnvironmentError(
+                    'Final subfigure environment was not terminated.'
+                    )
+
 
 if __name__ == '__main__':
     args = input_handler()
