@@ -93,6 +93,8 @@ def handle_block(content, verbose=0):
         content = content[:result.start()] + replacement_width +\
                   content[result.end():]
 
+    # Work out what arguments to give to subfloat, for caption and
+    # labels to work correctly
     subcaption = caption + ''.join(labels)
     pre = '\subfloat'
     if lof_caption == LOF_CAPTION_AUTO:
