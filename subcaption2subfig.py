@@ -1,12 +1,10 @@
 #!/usr/bin/python
 
 import re
+import argparse
 
 
 DEBUG = True
-
-input_file = 'rw_tst/foo.tex'
-output_file = 'rw_tst/foo_out.tex'
 
 # Search parameters
 ENV_NAME = 'subfigure'
@@ -19,6 +17,22 @@ LOF_CAPTION_AUTO = 'auto'
 LOF_CAPTION_MIRROR = 'mirror'
 LOF_CAPTION_NONE = 'none'
 lof_caption = LOF_CAPTION_AUTO
+
+
+def input_handler():
+    parser = argparse.ArgumentParser(
+        description='Transform subcaption subfigure floats into subfigure '
+                    'subfloats')
+    parser.add_argument(
+        'source',
+        help='name of source file.',
+    )
+    parser.add_argument(
+        'destination',
+        help='filename for output destination.',
+    )
+    args = parser.parse_args()
+    return args
 
 
 def handle_block(content):
@@ -61,13 +75,13 @@ def handle_block(content):
     return pre + '{' + content + post + '}'
 
 
-def main():
+def main(source, destination):
     # Setup loop parameters
     buffer_text = ''
     is_in_subfigure = False
 
-    with open(input_file, 'r') as f_in:
-        with open(output_file, 'w') as f_out:
+    with open(source, 'r') as f_in:
+        with open(destination, 'w') as f_out:
             for line_num, line in enumerate(f_in):
                 #print(line_num)
                 #print(line)
@@ -102,4 +116,5 @@ def main():
                             break
 
 if __name__ == '__main__':
-    main()
+    args = input_handler()
+    main(**vars(args))
