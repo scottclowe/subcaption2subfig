@@ -68,6 +68,9 @@ def handle_block(content, verbose=0):
         content = content[:result.start()] + content[result.end():]
         result = prog.search(content)
 
+    # Remove any completely blank lines
+    content = re.sub('\n\s+\n', '\n', content)
+
     subcaption = caption + ''.join(labels)
     pre = '\subfloat'
     if lof_caption == LOF_CAPTION_AUTO:
