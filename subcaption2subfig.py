@@ -31,6 +31,7 @@ def input_handler():
     )
     parser.add_argument(
         '-v', '--verbose', action='count',
+        default=0,
         help='increase verbosity',
     )
     args = parser.parse_args()
