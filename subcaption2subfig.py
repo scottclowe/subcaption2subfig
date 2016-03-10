@@ -88,12 +88,16 @@ def handle_block(content, verbose=0):
 
     # Find all the captions
     caption = ''
-    prog = re.compile('\\\\caption\{([^\}]*)\}')
-    result = prog.search(content)
-    while result:
-        caption += result.groups()[0]
-        content = content[:result.start()] + content[result.end():]
-        result = prog.search(content)
+    SEARCH_TERM = '\\caption{'
+    search_index = content.find(SEARCH_TERM)
+    while search_index and search_index != -1:
+        term_index = find_closing_brace(content[search_index:], start_depth=0)
+        if term_index == -1:
+            raise EnvironmentError(
+                'Could not find closing brace for {}'.format(SEARCH_TERM))
+        caption += content[search_index+len(SEARCH_TERM):search_index+term_index]
+        content = content[:search_index] + content[search_index+term_index+1:]
+        search_index = content.find(SEARCH_TERM)
 
     # Remove any completely blank lines
     content = re.sub('\n\s+\n', '\n', content)
