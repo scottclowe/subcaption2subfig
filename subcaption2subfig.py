@@ -111,6 +111,7 @@ def handle_block(content, verbose=0):
 
     return content
 
+
 def main(source, destination, verbose=0):
     # Setup loop parameters
     buffer_text = ''
@@ -150,6 +151,7 @@ def main(source, destination, verbose=0):
                         else:
                             f_out.write(line)
                             break
+
 
 if __name__ == '__main__':
     args = input_handler()
