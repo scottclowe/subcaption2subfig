@@ -61,12 +61,12 @@ def handle_block(content, verbose=0):
 
     # Find all the captions
     caption = ''
-    prog = re.compile('^(.*)\\\\caption\{([^\}]*)\}(.*)$', flags=re.DOTALL)
-    result = prog.match(content)
+    prog = re.compile('\\\\caption\{([^\}]*)\}')
+    result = prog.search(content)
     while result:
-        caption += result.groups()[1]
-        content = result.groups()[0] + result.groups()[2]
-        result = prog.match(content)
+        caption += result.groups()[0]
+        content = content[:result.start()] + content[result.end():]
+        result = prog.search(content)
 
     subcaption = caption + ''.join(labels)
     pre = '\subfloat'
