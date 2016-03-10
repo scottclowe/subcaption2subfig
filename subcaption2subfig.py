@@ -73,8 +73,11 @@ def handle_block(content, verbose=0):
     content = re.sub('\n\s+\n', '\n', content)
 
     # Fix widths, if relative width given
-    result = re.search('\[width=([\d\.]*)\\\linewidth\]', content)
-    if result:
+    results = re.finditer('\[width=([\d\.]*)\\\linewidth\]', content)
+    # Convert the iterable into a list so we know whether it is
+    # populated or empty
+    results = list(results)
+    if results:
         result2 = re.match('[\d\.]+', box_width)
         if result2:
             box_width_frac = float(result2.group())
@@ -83,16 +86,27 @@ def handle_block(content, verbose=0):
             box_width_frac = 1
             box_width_measure = box_width
 
-        if result.groups()[0]:
-            box_width_frac *= float(result.groups()[0])
+        new_content = ''
+        prev_result = None
+        for i_result, result in enumerate(results):
+            float_width_frac = box_width_frac
+            if result.groups()[0]:
+                float_width_frac *= float(result.groups()[0])
 
-        replacement_width = box_width_measure
-        if box_width_frac is not 1:
-            replacement_width = str(box_width_frac) + replacement_width
-        replacement_width = '[width=' + replacement_width + ']'
+            replacement_width = box_width_measure
+            if float_width_frac is not 1:
+                replacement_width = str(float_width_frac) + replacement_width
+            replacement_width = '[width=' + replacement_width + ']'
 
-        content = content[:result.start()] + replacement_width +\
-                  content[result.end():]
+            if prev_result is None:
+                new_content += content[:result.start()]
+            else:
+                new_content += content[prev_result.end():result.start()]
+            new_content += replacement_width
+            prev_result = result
+
+        new_content += content[result.end():]
+        content = new_content
 
     # Work out what arguments to give to subfloat, for caption and
     # labels to work correctly
