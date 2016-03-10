@@ -54,7 +54,7 @@ def handle_block(content, verbose=0):
     else:
         box_width = ''
 
-    # Find and remove all the labels
+    # Find all the labels
     prog = re.compile('\\\\label\{[^\}]*\}')
     labels = prog.findall(content)
     content = prog.sub('', content)
