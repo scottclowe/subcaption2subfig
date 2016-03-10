@@ -49,10 +49,10 @@ def handle_block(content, verbose=0):
     # Remove width argument
     result = re.match('^\{([^\}]*)\}', content)
     if result:
-        width = result.groups()[0]
+        box_width = result.groups()[0]
         content = content[result.end():]
     else:
-        width = ''
+        box_width = ''
 
     # Find and remove all the labels
     prog = re.compile('\\\\label\{[^\}]*\}')
@@ -70,6 +70,28 @@ def handle_block(content, verbose=0):
 
     # Remove any completely blank lines
     content = re.sub('\n\s+\n', '\n', content)
+
+    # Fix widths, if relative width given
+    result = re.search('\[width=([\d\.]*)\\\linewidth\]', content)
+    if result:
+        result2 = re.match('[\d\.]+', box_width)
+        if result2:
+            box_width_frac = float(result2.group())
+            box_width_measure = box_width[result2.end():]
+        else:
+            box_width_frac = 1
+            box_width_measure = box_width
+
+        if result.groups()[0]:
+            box_width_frac *= float(result.groups()[0])
+
+        replacement_width = box_width_measure
+        if box_width_frac is not 1:
+            replacement_width = str(box_width_frac) + replacement_width
+        replacement_width = '[width=' + replacement_width + ']'
+
+        content = content[:result.start()] + replacement_width +\
+                  content[result.end():]
 
     subcaption = caption + ''.join(labels)
     pre = '\subfloat'
