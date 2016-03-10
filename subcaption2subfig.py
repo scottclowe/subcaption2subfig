@@ -4,8 +4,6 @@ import re
 import argparse
 
 
-DEBUG = True
-
 # Search parameters
 ENV_NAME = 'subfigure'
 ENV_START_RE = '\\\\begin{\s*' + ENV_NAME + '\s*}'
@@ -31,16 +29,20 @@ def input_handler():
         'destination',
         help='filename for output destination.',
     )
+    parser.add_argument(
+        '-v', '--verbose', action='count',
+        help='increase verbosity',
+    )
     args = parser.parse_args()
     return args
 
 
-def handle_block(content):
+def handle_block(content, verbose=0):
 
-    if DEBUG:
-        print('---')
+    if verbose:
+        print('>>>>>')
         print(content)
-        print('---')
+        print('-----')
 
     # Remove position argument
     content = re.sub('^\[[^\]]*\]', '', content)
@@ -72,10 +74,16 @@ def handle_block(content):
     else:
         raise NotImplementedError()
     post = ''
-    return pre + '{' + content + post + '}'
+    content = pre + '{' + content + post + '}'
 
+    if verbose:
+        print('-----')
+        print(content)
+        print('<<<<<')
 
-def main(source, destination):
+    return content
+
+def main(source, destination, verbose=0):
     # Setup loop parameters
     buffer_text = ''
     is_in_subfigure = False
@@ -83,8 +91,8 @@ def main(source, destination):
     with open(source, 'r') as f_in:
         with open(destination, 'w') as f_out:
             for line_num, line in enumerate(f_in):
-                #print(line_num)
-                #print(line)
+                if verbose > 1:
+                    print('{:>4}:'.format(line_num), line, end='')
                 while True:
                     comment_status = re.search(COMMENT_RE, line)
                     if is_in_subfigure:
@@ -93,7 +101,7 @@ def main(source, destination):
                                 (not comment_status or
                                 result.start() < comment_status.start()):
                             buffer_text += line[:result.start()]
-                            f_out.write(handle_block(buffer_text))
+                            f_out.write(handle_block(buffer_text, verbose))
                             is_in_subfigure = False
                             buffer_text = ''
                             line = line[result.end():]
