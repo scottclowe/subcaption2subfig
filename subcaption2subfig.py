@@ -56,7 +56,7 @@ def find_closing_brace(text, closing='}', opening=None, start_depth=1):
             current_depth += 1
         if char is closing:
             current_depth -= 1
-        if current_depth==0 and has_begun:
+        if current_depth == 0 and has_begun:
             return index
         if not has_begun and current_depth:
             has_begun = True
@@ -95,8 +95,11 @@ def handle_block(content, verbose=0):
         if term_index == -1:
             raise EnvironmentError(
                 'Could not find closing brace for {}'.format(SEARCH_TERM))
-        caption += content[search_index+len(SEARCH_TERM):search_index+term_index]
-        content = content[:search_index] + content[search_index+term_index+1:]
+        caption += content[
+            search_index + len(SEARCH_TERM):search_index + term_index]
+        content = content[
+            :search_index] + content[
+                search_index + term_index + 1:]
         search_index = content.find(SEARCH_TERM)
 
     # Remove any completely blank lines
@@ -173,7 +176,7 @@ def main(source, destination, verbose=0):
                         result = re.search(ENV_END_RE, line)
                         if result and \
                                 (not comment_status or
-                                result.start() < comment_status.start()):
+                                 result.start() < comment_status.start()):
                             buffer_text += line[:result.start()]
                             f_out.write(handle_block(buffer_text, verbose))
                             is_in_subfigure = False
@@ -188,7 +191,7 @@ def main(source, destination, verbose=0):
                         result = re.search(ENV_START_RE, line)
                         if result and \
                                 (not comment_status or
-                                result.start() < comment_status.start()):
+                                 result.start() < comment_status.start()):
                             f_out.write(line[:result.start()])
                             is_in_subfigure = True
                             line = line[result.end():]
@@ -201,7 +204,7 @@ def main(source, destination, verbose=0):
                 f_out.write(handle_block(buffer_text, verbose))
                 raise EnvironmentError(
                     'Final subfigure environment was not terminated.'
-                    )
+                )
 
 
 if __name__ == '__main__':
