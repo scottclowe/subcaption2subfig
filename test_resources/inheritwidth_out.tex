@@ -1,0 +1,32 @@
+subcaption2subfig test file
+Test whether a subfigures pass their width on to inner graphics.
+
+\subfloat[][]{
+    % If included graphics has a width not relative to containing box, it
+    % should not change width
+    \includegraphics{file.png}
+    % Should change if inherited from parent
+    \includegraphics[width=0.5\linewidth]{file2.pdf}
+    % Should change if relative to parent
+    \includegraphics[width=0.3\linewidth]{file2.pdf}
+    % Content should change even if commented out
+%    \includegraphics[width=0.4\linewidth]{file2-alt.pdf}
+    % Other content should change too
+    \otherthing[width=0.5\linewidth] {random stuff}
+}
+
+% Values should not change if subfigure is 100% relative to something
+\subfloat[][]{
+    % Should change if relative to parent
+    \includegraphics[width=0.6\linewidth]{file2.pdf}
+}
+
+% subfigure can have any width setting, not just \linewidth
+\subfloat[][]{
+    % Should change if relative to parent
+    \includegraphics[width=0.3\pagewidth]{file2.pdf}
+    % Other content should change too
+    \otherthing[width=0.5\pagewidth] {random stuff}
+}
+
+End of test.
