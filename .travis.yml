@@ -1,0 +1,152 @@
+###############################################################################
+sudo: false
+
+###############################################################################
+language: python
+
+###############################################################################
+# Cache data which has to be downloaded on every build.
+# This is just for Travis and doesn't do anything on Shippable.
+cache:
+  directories:
+    # Cache files downloaded by pip
+    - $HOME/.cache/pip
+
+###############################################################################
+python:
+  # This is a flag for the built-in version of Python provided by the CI-server
+  # provider, which we don't use in favour of conda. But we use this to pick
+  # out which python version we install with conda, since it means the provider
+  # gets appropriate metadata to keep things organised.
+  - "2.6"
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+
+###############################################################################
+env:
+  matrix:
+    # Run tests with newest and oldest dependencies
+    - USE_OLDEST_DEPENDENCIES="false"
+    #- USE_OLDEST_DEPENDENCIES="true"
+
+###############################################################################
+# Setup the environment before installing
+before_install:
+  # Remember the directory where our repository to test is located
+  - REPOPATH="$(pwd)" && pwd
+  # ---------------------------------------------------------------------------
+  # If we want to run the tests using the oldest set of dependencies we
+  # support, modify any *requirements*.txt files every '>=' becomes '=='.
+  - if [[ "$USE_OLDEST_DEPENDENCIES" == "true" ]]; then
+      for FILE in *requirements*.txt; do
+          sed -e 's/>=/~=/g' $FILE > $FILE.tmp && mv $FILE.tmp $FILE;
+      done;
+    fi;
+
+###############################################################################
+install:
+  # Install required packages listed in requirements.txt. We install this
+  # with the --upgrade flag *and* with --no-deps to make sure we have the
+  # most up to date version of all *immediate* dependencies of the package
+  # we are developing (whilst still compatible with the version specifier),
+  # without upgrading recursively (since that would invariably involve
+  # upgrading numpy and/or scipy). We then need to make sure the dependency
+  # "chain" is satisfied (dependencies of dependencies are adequate) without
+  # upgrading unnecessarily.
+  - if [ -f requirements.txt ]; then
+      cat requirements.txt;
+      pip install --no-deps --upgrade -r requirements.txt;
+      pip install -r requirements.txt;
+    fi;
+  # Also install any developmental requirements, if present.
+  - if [ -f requirements-dev.txt ]; then
+      cat requirements-dev.txt;
+      pip install --no-deps --upgrade -r requirements-dev.txt;
+      pip install -r requirements-dev.txt;
+    fi;
+  - if [ -f requirements-test.txt ]; then
+      cat requirements-test.txt;
+      pip install --no-deps --upgrade -r requirements-test.txt;
+      pip install -r requirements-test.txt;
+    fi;
+
+###############################################################################
+before_script:
+  # Double-check we are still in the right directory
+  - pwd
+  # Check what python packages we have installed
+  - which python
+  - python --version
+  - pip freeze
+  # ---------------------------------------------------------------------------
+  # Remove any cached results files from previous build, if present
+  - rm -f testresults.xml;
+    rm -f coverage.xml;
+    rm -f .coverage;
+  # ---------------------------------------------------------------------------
+  # Set up folders for test results on Shippable
+  - if [ "$SHIPPABLE" = "true" ]; then
+      rm -fr shippable;
+      mkdir -p shippable/testresults;
+      mkdir -p shippable/codecoverage;
+    fi;
+
+###############################################################################
+script:
+  - py.test --flake8 --cov=subcaption2subfig.py --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml test_subcaption2subfig.py
+
+###############################################################################
+after_script:
+  # Show where we ended up
+  - pwd
+  # Go back to the repository directory, just in case
+  # Show what results files there are
+  - cd ${REPOPATH} && ls -alh;
+  # ---------------------------------------------------------------------------
+  # Move results and coverage files into appropriate places
+  - if [ "$SHIPPABLE" = "true" ] && [ -f testresults.xml ]; then
+      mv testresults.xml shippable/testresults/;
+    fi;
+    if [ "$SHIPPABLE" = "true" ] && [ -f coverage.xml ]; then
+      cp coverage.xml shippable/codecoverage/;
+    fi;
+
+###############################################################################
+after_success:
+  # Only run coveralls on Travis. When running on a public Travis-CI, the
+  # repo token is automatically inferred, but to run coveralls on Shippable
+  # the repo token needs to be specified in a .coveralls.yml or as an
+  # environment variable COVERALLS_REPO_TOKEN. This should be kept hidden
+  # from public viewing, either by encrypting the token or running on a
+  # private build.
+  # We ignore coveralls failures because the coveralls server is not 100%
+  # reliable and we don't want the CI to report a failure just because the
+  # coverage report wasn't published.
+  - if [ "$TRAVIS" = "true" ] && [ "$SHIPPABLE" != "true" ]; then
+      pip install coveralls;
+      travis_retry coveralls || echo "Coveralls push failed";
+      pip install codecov;
+      travis_retry codecov || echo "Codecov push failed";
+    fi;
+
+###############################################################################
+# Steps to take before archiving on Shippable (does nothing on Travis)
+before_archive:
+  # Have shippable archive the environment.yml artifact by putting it in
+  # the REPO/shippable folder. This is available to download as a tar file for
+  # each build.
+  # Since this build was successful, you can share it for users to install from
+  # with the command `conda env create -f environment.yml` and know they have
+  # a working build.
+  # If you want to save this file on Travis, you will need to turn on the
+  # artifacts addon (or do something else with it). See here for details
+  # https://docs.travis-ci.com/user/uploading-artifacts/
+  - if [ "$SHIPPABLE" = "true" ] && [ -f environment.yml ]; then
+      cp environment.yml shippable/;
+    fi;
+
+###############################################################################
+# Enable archiving of artifacts on Shippable (does nothing on Travis)
+archive: true
