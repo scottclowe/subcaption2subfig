@@ -30,6 +30,11 @@ subfigure environments replaced with subfloats.
 Either Python 2.6+ or Python 3. No other dependencies.
 
 
+## Installation
+
+Simply download or clone [this repository].
+
+
 ## Example
 
 *sample.tex*
@@ -106,5 +111,6 @@ be changed so other subfloat arguments are output, but this was all I needed
 so those options do not exist.
 
 
+  [this repository]: https://github.com/scottclowe/subcaption2subfig
   [subcaption]: https://www.ctan.org/pkg/subcaption
   [subfig]: https://www.ctan.org/pkg/subfig
