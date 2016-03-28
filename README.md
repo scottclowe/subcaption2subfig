@@ -37,7 +37,7 @@ Simply download or clone [this repository].
 
 ## Example
 
-*sample.tex*
+**sample.tex**
 ```tex
 This LaTeX shows an example figure.
 \begin{figure}[htbp]
@@ -59,12 +59,12 @@ This LaTeX shows an example figure.
 \end{figure}
 ```
 
-*Command*
+Perform the conversion with the command:
 ```shell
 python subcaption2subfig.py sample.tex output.tex
 ```
 
-*output.tex*
+**output.tex**
 ```tex
 This LaTeX shows an example figure.
 \begin{figure}[htbp]
