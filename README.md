@@ -1,3 +1,7 @@
+[![Travis build](https://travis-ci.org/scottclowe/subcaption2subfig.svg?branch=master)](https://travis-ci.org/scottclowe/subcaption2subfig)
+[![Coveralls report](https://coveralls.io/repos/scottclowe/subcaption2subfig/badge.svg?branch=master&service=github)](https://coveralls.io/github/scottclowe/subcaption2subfig?branch=master)
+[![Codecov report](https://codecov.io/github/scottclowe/subcaption2subfig/coverage.svg?branch=master)](https://codecov.io/github/scottclowe/subcaption2subfig?branch=master)
+
 # subcaption2subfig
 
 Converts TeX subfigures written for the [subcaption package][subcaption] into
